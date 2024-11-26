@@ -48,13 +48,15 @@
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script src="models.js"></script>
+    <script src="dataManager.js"></script>
+    <script src="calendarManager.js"></script>
     <script src="pomodoro.js"></script>
     <script>
-        // Initialize both calendar and pomodoro
         document.addEventListener('DOMContentLoaded', () => {
-            new CalendarManager();
-            new PomodoroTimer();
+            const dataManager = new DataManager();
+            new CalendarManager(dataManager);
+            new PomodoroTimer(dataManager);
         });
     </script>
 </body>
