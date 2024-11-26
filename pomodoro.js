@@ -73,22 +73,35 @@ class PomodoroTimer {
         this.updateDisplay();
     }
 
-    updateWorkTime() {
-        this.timeLeft = parseInt(this.workTimeInput.value) * 60;
-        this.updateDisplay();
-    }
-
-    updateBreakTime() {
-        this.timeLeft = parseInt(this.breakTimeInput.value) * 60;
-        this.updateDisplay();
-    }
-
     handleSessionComplete() {
         this.pause();
         
         // Play notification sound if available
         if (window.Telegram?.WebApp) {
-            
+            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+        
+        // Toggle between work and break sessions
+        this.isWorkSession = !this.isWorkSession;
+        this.timeLeft = this.isWorkSession ? 
+            parseInt(this.workTimeInput.value) * 60 : 
+            parseInt(this.breakTimeInput.value) * 60;
+        
+        // Automatically start the next session
+        this.start();
+    }
+
+    updateWorkTime() {
+        if (!this.isRunning && this.isWorkSession) {
+            this.timeLeft = parseInt(this.workTimeInput.value) * 60;
+            this.updateDisplay();
+        }
+    }
+
+    updateBreakTime() {
+        if (!this.isRunning && !this.isWorkSession) {
+            this.timeLeft = parseInt(this.breakTimeInput.value) * 60;
+            this.updateDisplay();
         }
     }
 } 
