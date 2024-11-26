@@ -1,5 +1,6 @@
 class PomodoroTimer {
-    constructor() {
+    constructor(dataManager) {
+        this.dataManager = dataManager;
         // Timer state
         this.timeLeft = 25 * 60; // 25 minutes in seconds
         this.timerId = null;
@@ -18,6 +19,35 @@ class PomodoroTimer {
         // Initialize
         this.bindEvents();
         this.updateDisplay();
+
+        this.currentTaskId = null;
+        this.initializeTaskSelection();
+    }
+
+    initializeTaskSelection() {
+        const taskSelect = document.createElement('select');
+        taskSelect.id = 'taskSelect';
+        taskSelect.innerHTML = '<option value="">Select Task</option>';
+        
+        // Add task selection before timer display
+        this.minutesDisplay.parentNode.insertBefore(taskSelect, this.minutesDisplay);
+        
+        this.updateTaskList();
+    }
+
+    updateTaskList() {
+        const taskSelect = document.getElementById('taskSelect');
+        const currentTasks = Array.from(this.dataManager.tasks.values())
+            .filter(task => !task.completed);
+        
+        taskSelect.innerHTML = '<option value="">Select Task</option>' +
+            currentTasks.map(task => 
+                `<option value="${task.id}">${task.title}</option>`
+            ).join('');
+            
+        taskSelect.addEventListener('change', (e) => {
+            this.currentTaskId = e.target.value;
+        });
     }
 
     bindEvents() {
@@ -89,6 +119,17 @@ class PomodoroTimer {
         
         // Automatically start the next session
         this.start();
+
+        if (this.currentTaskId && this.isWorkSession) {
+            const session = new PomodoroSession(
+                null,
+                this.currentTaskId,
+                new Date(),
+                parseInt(this.workTimeInput.value) * 60,
+                true
+            );
+            this.dataManager.addPomodoroSession(session);
+        }
     }
 
     updateWorkTime() {
